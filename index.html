@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHORA — Ouvroir de Rhei</title>
+<link rel="preload" href="fonts/cormorant-garamond-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:300;font-display:swap;src:url(fonts/cormorant-garamond-latin-300-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/cormorant-garamond-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/cormorant-garamond-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"Cormorant Garamond";font-style:italic;font-weight:400;font-display:swap;src:url(fonts/cormorant-garamond-latin-400-italic.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"EB Garamond";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/eb-garamond-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"EB Garamond";font-style:italic;font-weight:400;font-display:swap;src:url(fonts/eb-garamond-latin-400-italic.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:"EB Garamond";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/eb-garamond-greek-400-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;}
+  @font-face{font-family:"EB Garamond";font-style:italic;font-weight:400;font-display:swap;src:url(fonts/eb-garamond-greek-400-italic.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF;}
+  :root{ --ink: rgba(33,32,30,.9); --paper:#f6f4ef; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#e9e7e2;overscroll-behavior:none}
+  body{font-family:"EB Garamond","Cormorant Garamond",serif;color:var(--ink);-webkit-font-smoothing:antialiased;
+       user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+
+  #view{position:fixed;inset:0;overflow:hidden;touch-action:none;cursor:default}
+  #scene{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity 2s ease}
+  #scene.ready{opacity:1}
+  #wall{position:absolute;inset:0;background:#e9e7e2 url(assets/plaster.jpg) 0 0/1024px 1024px}
+  #stage{position:absolute;left:300px;width:2856px;height:2142px}
+
+  .obj{position:absolute;left:0;top:0;pointer-events:none;will-change:transform}
+  .obj img{display:block;width:100%;height:100%;transition:filter .35s ease, transform .35s ease}
+  /* soft, cool shadows; the light comes from a window up and to the left */
+  .k-fixed  img{filter:drop-shadow(1.7px 3.4px 2.5px rgba(24,26,30,.22)) drop-shadow(5.1px 10.2px 10.2px rgba(24,26,30,.10))}
+  .k-poster img{filter:drop-shadow(2.5px 5.1px 3.4px rgba(24,26,30,.24)) drop-shadow(8.5px 17.0px 17.0px rgba(24,26,30,.12))}
+  .k-shelf  img{filter:drop-shadow(5.1px 15.3px 10.2px rgba(24,26,30,.30)) drop-shadow(17.0px 47.6px 44.2px rgba(24,26,30,.16))}
+  .k-item   img{filter:drop-shadow(6.8px 10.2px 8.5px rgba(24,26,30,.26)) drop-shadow(23.8px 30.6px 37.4px rgba(24,26,30,.14))}
+  .k-mirror img{filter:drop-shadow(8.5px 17.0px 11.9px rgba(24,26,30,.32)) drop-shadow(27.2px 44.2px 44.2px rgba(24,26,30,.18))}
+  .obj.hover img{transform:translateY(-3px)}
+  .obj.lift img{transform:scale(1.035);filter:drop-shadow(17.0px 27.2px 17.0px rgba(24,26,30,.22)) drop-shadow(57.8px 91.8px 78.2px rgba(24,26,30,.22))}
+  .obj.k-poster.lift img{transform:scale(1.015);filter:drop-shadow(10.2px 17.0px 13.6px rgba(24,26,30,.22)) drop-shadow(34.0px 61.2px 51.0px rgba(24,26,30,.18))}
+
+  /* the glass */
+  #glass{position:absolute;border-radius:50%;overflow:hidden;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+  #sea{position:absolute;inset:0;opacity:0;transition:opacity 6s ease;background:#020405}
+  body.deep #sea{opacity:1}
+  #sea video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  #sea iframe{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:0;pointer-events:none}
+  #cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:0;transition:opacity 3s ease;filter:sepia(.35) saturate(.8) contrast(.95)}
+  body.cam #cam{opacity:.94}
+  body.cam.deep #cam{opacity:.13;mix-blend-mode:screen;filter:grayscale(1) contrast(1.2)}
+  #bevel{position:absolute;inset:0;border-radius:50%;
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.35), inset 8px 16px 30px rgba(0,0,0,.42), inset -4px -6px 18px rgba(255,255,255,.07)}
+  #sheen{position:absolute;inset:-30%;
+    background:linear-gradient(118deg, rgba(255,255,255,0) 38%, rgba(255,240,215,.15) 47%, rgba(255,255,255,0) 56%);
+    transform:translate(var(--sx,0px),var(--sy,0px));transition:opacity 4s}
+  body.deep #sheen{opacity:.4}
+
+  /* light, in scene space */
+  .fx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:20000;transition:opacity 4.5s ease}
+  #shade{mix-blend-mode:multiply}
+  #warm{mix-blend-mode:soft-light}
+  #lift{mix-blend-mode:screen}
+  body.deep #lift{opacity:0}
+  #sun{mix-blend-mode:soft-light;opacity:1}
+  #sun i{position:absolute;display:block;transform-origin:0 0}
+  @keyframes breathe{0%{opacity:.78}45%{opacity:1}100%{opacity:.86}}
+  /* the mirror's light: cool, and only when you look into it */
+  .hole{-webkit-mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%);
+                mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%)}
+  #night{mix-blend-mode:color;background:#1d4a6a;opacity:0}
+  #nightdim{mix-blend-mode:multiply;opacity:0}
+  #glow{opacity:0;mix-blend-mode:screen}
+  #caustic{opacity:0;mix-blend-mode:screen;
+    background-image:url(assets/caustic.png),url(assets/caustic.png);
+    background-size:460px 460px, 700px 700px;
+    animation:drift 26s linear infinite;
+    -webkit-mask-image:radial-gradient(ellipse 620px 720px at var(--gx) var(--gy), transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%);
+            mask-image:radial-gradient(ellipse 620px 720px at var(--gx) var(--gy), transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%)}
+  @keyframes drift{from{background-position:0 0, 0 0}to{background-position:460px 230px, -700px 350px}}
+  body.peek #night{opacity:.32} body.peek #nightdim{opacity:.35} body.peek #sun{opacity:.35;animation:none} body.peek #glow{opacity:.35}
+  body.deep #night{opacity:.8;transition-duration:6s} body.deep #nightdim{opacity:1;transition-duration:6s}
+  body.deep #sun, body.deep #warm{opacity:0;animation:none}
+  body.deep #glow{opacity:1} body.deep #caustic{opacity:.26}
+  body.deep #shade{opacity:.6}
+
+  /* screen-space finish */
+  #vignette{position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 110% 95% at 50% 46%, rgba(0,0,0,0) 50%, rgba(20,22,26,.12) 100%)}
+  #motes{position:fixed;inset:0;pointer-events:none;width:100%;height:100%}
+  .tilt{position:fixed;left:0;right:0;height:16vh;pointer-events:none;opacity:0;transition:opacity 2s;
+    -webkit-backdrop-filter:blur(1.6px);backdrop-filter:blur(1.6px)}
+  .tilt.t{top:0;-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
+  .tilt.b{bottom:0;-webkit-mask-image:linear-gradient(transparent,#000);mask-image:linear-gradient(transparent,#000)}
+  @media (hover:hover) and (min-aspect-ratio:1/1){ body.arrived .tilt{opacity:1} }
+  #grain{position:fixed;inset:-50%;pointer-events:none;opacity:.055;mix-blend-mode:overlay;animation:grain .9s steps(6) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,-1%)}80%{transform:translate(3%,3%)}100%{transform:translate(0,0)}}
+
+  /* —— the introduction, set on the empty wall —— */
+  #intro{position:absolute;left:0;top:0;width:100%;padding:clamp(56px,11vh,130px) 0 0;will-change:transform;pointer-events:none}
+  #intro .folio{display:flex;justify-content:space-between;width:min(880px,88vw);margin:0 auto 4vh;
+    font:400 11px/1 "Cormorant Garamond","EB Garamond",serif;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);opacity:.75}
+  #intro .folio span:last-child{letter-spacing:.12em;text-transform:none;font-size:13px}
+  .hl{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:clamp(64px,12.6vw,170px);line-height:.93;
+      text-align:center;text-transform:uppercase;color:var(--ink);letter-spacing:-.004em}
+  .hl div{white-space:nowrap}
+  .hl .q{margin-left:.02em}
+  #oval{position:relative;display:inline-block;width:.72em;height:.88em;margin:0 .012em 0 .02em;vertical-align:-.1em;cursor:pointer;pointer-events:auto;
+    transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+  #oval:hover{transform:scale(1.03)}
+  #oval svg.t{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .bd{width:min(880px,88vw);margin:5.2vh auto 0;font:400 clamp(15px,1.28vw,18.5px)/1.5 "EB Garamond",serif;
+      text-align:justify;hyphens:auto;-webkit-hyphens:auto;color:var(--ink)}
+  .bd em{font-style:italic}
+  .sig{width:min(880px,88vw);margin:3.4vh auto 0;display:flex;justify-content:space-between;
+       font:italic 400 clamp(13px,1.1vw,15.5px) "EB Garamond",serif;color:var(--ink);opacity:.7}
+
+  .colo{width:min(880px,88vw);margin:7vh auto 0;font:400 12px/1.55 "EB Garamond",serif;color:var(--ink);opacity:.55;text-align:left}
+  #cue{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:4;pointer-events:none;
+    font:italic 400 14px "EB Garamond",serif;letter-spacing:.08em;color:var(--ink);text-align:center;transition:opacity .6s}
+  #cue i{display:block;width:1px;height:38px;margin:8px auto 0;background:linear-gradient(var(--ink),rgba(14,24,36,0));animation:cue 2.6s ease-in-out infinite}
+  @keyframes cue{0%{transform:scaleY(.2);transform-origin:top;opacity:0}40%{opacity:1}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
+
+  /* —— a small card, taped to the wall —— */
+  #card{position:fixed;right:clamp(14px,3vw,40px);bottom:calc(clamp(14px,3vh,36px) + env(safe-area-inset-bottom));
+    width:min(300px,calc(100vw - 28px));padding:16px 18px 14px;z-index:5;
+    background:var(--paper);box-shadow:0 6px 18px rgba(4,10,20,.32), 0 1px 2px rgba(4,10,20,.2);
+    transform:rotate(.6deg) translateY(10px);opacity:0;pointer-events:none;transition:opacity 1.4s, transform 1.4s}
+  body.arrived #card{opacity:1;pointer-events:auto;transform:rotate(.6deg)}
+  body.arrived #card.hide{opacity:0;pointer-events:none}
+  #card::before,#card::after{content:"";position:absolute;width:46px;height:16px;top:-7px;
+    background:rgba(150,150,145,.45);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  #card::before{left:-12px;transform:rotate(-38deg)}
+  #card::after{right:-12px;transform:rotate(38deg)}
+  #card h1{font:300 22px/1 "Cormorant Garamond",serif;letter-spacing:.34em}
+  #card .la{font:italic 400 14px/1.3 "EB Garamond",serif;opacity:.72;margin-top:5px}
+  #status{white-space:pre-line;font:400 13px/1.45 "EB Garamond",serif;margin-top:10px;min-height:2.9em;opacity:.88}
+  #hint{font:italic 400 12.5px/1.45 "EB Garamond",serif;opacity:.6;margin-top:4px}
+  #ctrl{margin-top:9px;font:400 13px "EB Garamond",serif;letter-spacing:.02em;line-height:1.9}
+  #ctrl button{all:unset;cursor:pointer;border-bottom:1px solid rgba(33,32,30,.3);padding-bottom:1px}
+  #ctrl button:hover{opacity:.55}
+  #ctrl span{opacity:.4;margin:0 .4em}
+  @media (max-aspect-ratio:1/1){
+    #card{top:calc(12px + env(safe-area-inset-top));bottom:auto;right:auto;left:12px;width:min(270px,calc(100vw - 24px));padding:11px 13px 9px}
+    #card h1{font-size:18px} #status{font-size:12px;min-height:2.6em;margin-top:7px} #ctrl{font-size:12px;line-height:1.75}
+    #hint{display:none}
+  }
+
+  #tag{position:fixed;pointer-events:none;z-index:6;font:italic 400 15px "EB Garamond",serif;
+    color:#fbfaf7;letter-spacing:.03em;text-shadow:0 1px 8px rgba(10,12,16,.55);opacity:0;transition:opacity .25s;transform:translate(14px,14px)}
+  #tag.on{opacity:.95}
+  #notes{position:absolute;left:0;top:0;width:2856px;height:2142px;overflow:visible;pointer-events:none;z-index:150}
+  #notes path{fill:none;stroke:#3b3b40;stroke-linecap:round;stroke-linejoin:round}
+  #notesG g{opacity:.82;transition:opacity 1.6s}
+  #notesG g.new{opacity:0}
+  #zoom,#penbar{position:fixed;z-index:6;display:flex;gap:6px;opacity:0;pointer-events:none;transition:opacity 1.2s}
+  #zoom{left:clamp(14px,3vw,40px);bottom:calc(clamp(14px,3vh,36px) + env(safe-area-inset-bottom))}
+  body.arrived #zoom{opacity:1;pointer-events:auto}
+  #zoom button,#penbar button{all:unset;cursor:pointer;min-width:34px;height:34px;padding:0 10px;box-sizing:border-box;text-align:center;
+    background:var(--paper);color:var(--ink);font:400 17px/34px "EB Garamond",serif;box-shadow:0 3px 10px rgba(20,22,26,.18),0 1px 2px rgba(20,22,26,.15)}
+  #zoom button:hover,#penbar button:hover{background:#fff}
+  #penbar{left:50%;top:calc(18px + env(safe-area-inset-top));transform:translateX(-50%);align-items:center;background:var(--paper);padding:6px 6px 6px 16px;
+    box-shadow:0 4px 16px rgba(20,22,26,.2);font:italic 400 15px "EB Garamond",serif;color:var(--ink)}
+  #penbar button{box-shadow:none;border-left:1px solid rgba(33,32,30,.15);font-size:14px;font-style:normal}
+  body.pen #penbar{opacity:1;pointer-events:auto}
+  body.pen #view{cursor:crosshair !important}
+  @media (max-aspect-ratio:1/1){ #penbar{top:auto;bottom:calc(64px + env(safe-area-inset-bottom))} }
+
+  @media (prefers-reduced-motion:reduce){ #sun,#caustic,#grain{animation:none} }
+</style>
+</head>
+<body>
+<div id="view">
+  <div id="scene">
+    <div id="wall"></div>
+    <div id="stage"><svg id="notes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.0" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs><g id="notesG" filter="url(#pencil)"></g><g id="inkNow"></g></svg><div id="objs"></div></div>
+    <div id="shade" class="fx"></div>
+    <div id="warm" class="fx"></div>
+    <div id="lift" class="fx"></div>
+    <div id="sun" class="fx"></div>
+    <div id="night" class="fx hole"></div>
+    <div id="nightdim" class="fx hole"></div>
+    <div id="glow" class="fx"></div>
+    <div id="caustic" class="fx"></div>
+  </div>
+
+  <div id="intro" lang="en">
+    <div class="folio"><span>Ouvroir de Rhei</span><span>χώρα</span></div>
+    <div class="hl">
+      <div>What</div>
+      <div>Is</div>
+      <div>Ch<span id="oval" title="Go to the mirror"><svg class="t"></svg></span>ra<span class="q">?</span></div>
+    </div>
+    <p class="bd">
+      <em>Chora</em> is an old Greek word for place&mdash;not a point on a map, but the room in which something is allowed to happen. In the <em>Timaeus</em>, Plato needed a third thing beside the eternal forms and the restless world of change: something that holds every appearance without becoming any of them. He called it chora, &ldquo;the receptacle, and in a manner the nurse, of all generation,&rdquo; and admitted that we catch sight of it only sideways, as in a dream. Some twenty-four centuries later Julia Kristeva borrowed the word for the space before language&mdash;rhythm, warmth, a voice heard from the inside&mdash;where a self is held before it learns to speak. Jacques Derrida let it stay strange: neither being nor nothing, a name that makes room for everything and keeps none of it. This wall is a chora of the smallest kind. It belongs to a workroom called the Ouvroir de Rhei, and it holds a book of fungi, a bottle of Riesling, a glass jar of dried leaves, Haeckel&rsquo;s lichens and diatoms, a plant leaning toward the window, and an oval mirror on a leather strap. Most of the time the mirror only gives back the room. But somewhere a robot is descending through dark water with its lamps on, and when it is, the mirror lets the deep sea in. Everything below may be touched. Pick things up, set them down, move the pictures; nothing here can break. Stay as long as you like.
+    </p>
+    <div class="sig"><span>a wall, a mirror, and the deep sea</span><span>below &darr;</span></div>
+    <p class="colo">Live sea by courtesy of Schmidt Ocean Institute (R/V Falkor (too), ROV SuBastian), Ocean Exploration Trust (E/V Nautilus), NOAA Ocean Exploration, and the NSF Ocean Observatories Initiative / University of Washington (the high-definition camera at Axial Seamount). The figure in the O is drawn after an Attic red-figure cup of the fourth century BC: a Nereid on a dolphin. The mirror shows you only in your own browser; nothing is recorded or sent, and words left on the wall stay with you. &copy; 2026 Ouvroir de Rhei. All rights reserved.</p>
+  </div>
+</div>
+<canvas id="motes"></canvas>
+<div id="vignette"></div>
+<div id="grain"></div>
+<div id="tag"></div>
+<div id="zoom"><button id="zIn" aria-label="zoom in">+</button><button id="zOut" aria-label="zoom out">&minus;</button><button id="zFit" aria-label="see the whole wall">&#9633;</button></div>
+<div id="penbar"><span>Write what you saw. It stays on your wall alone.</span><button id="bUndo">erase my last</button><button id="bDone">done</button></div>
+
+<div id="card">
+  <h1>CHORA</h1>
+  <div class="la">χώρα · Ouvroir de Rhei</div>
+  <div id="status">Look into the mirror</div>
+  <div id="hint">Pick things up, pinch or scroll with ⌘ to look closer, and leave a few words in pencil — they stay on this wall, in your browser, for you alone. The mirror sees you only here: nothing is recorded or sent.</div>
+  <div id="ctrl">
+    <button id="bCam">see yourself</button><span>·</span><button id="bPen">write on the wall</button><span>·</span><button id="bNext">another sea</button><span>·</span><button id="bSound">sound off</button><span>·</span><button id="bReset">restore</button>
+  </div>
+</div>
+
+<script src="tondo.js"></script>
+<script>
+(async function(){
+const $ = id => document.getElementById(id);
+const B = document.body, view = $('view'), scene = $('scene'), objsEl = $('objs'), intro = $('intro');
+const say = t => $('status').textContent = t;
+const M = await (await fetch('assets/scene.json')).json();
+const W = M.w, H = M.h, G = M.glass, P = 1800, PB = 1500, SWp = W + 2 * P;
+// the arrangement on the wall, in room coordinates
+const BOX = { x0: 170, y0: 40, x1: 2720, y1: 2110 };
+const PIVOT = { x: 1124, y: 1180 };
+const SAVE_KEY = 'khora-wall-v1';
+const LABELS = { book:'Fungarium', bottle:'Riesling', vase:'a jar of dried leaves', frame:'the framed print', postcards:'postcards',
+  cup:'a small cup', pebble:'a stone', smallframe:'a photograph', card:'a card', mushroom:'the mushroom', plant:'the plant',
+  diatom:'Haeckel · diatoms', haeckel:'Haeckel · lichens' };
+let PT = 2600, SHp = PT + H;
+
+/* ———————————— objects ———————————— */
+const objs = []; let touch = 0;
+for (const L of M.layers){
+  const el = document.createElement('div');
+  el.className = 'obj k-' + L.kind; el.style.width = L.w + 'px'; el.style.height = L.h + 'px'; el.style.zIndex = L.z * 100;
+  const img = new Image(); img.src = `assets/${L.id}.webp`; img.alt = ''; img.decoding = 'async'; img.draggable = false;
+  el.appendChild(img); objsEl.appendChild(el);
+  const o = { ...L, label: LABELS[L.id], layerZ: L.z, el, img, bx: L.x, by: L.y, x: L.x, y: L.y, rot: 0, rotT: 0, vy: 0,
+              state: 'rest', alpha: null, op: 1, sq: 1, bottomOff: L.bottom - L.y, z: L.z * 100 };
+  if (L.kind === 'item') el.style.transformOrigin = '50% 100%';
+  if (L.kind === 'poster') el.style.transformOrigin = '50% 0%';
+  if (L.kind === 'mirror'){ el.style.transformOrigin = `${PIVOT.x - L.x}px ${PIVOT.y - L.y}px`; o.ang = 0; o.av = 0; }
+  objs.push(o);
+}
+const byId = Object.fromEntries(objs.map(o => [o.id, o]));
+const mirror = byId.mirror;
+const glass = document.createElement('div'); glass.id = 'glass';
+Object.assign(glass.style, { left: (G.cx - G.rx - mirror.x) + 'px', top: (G.cy - G.ry - mirror.y) + 'px',
+  width: G.rx * 2 + 'px', height: G.ry * 2 + 'px', transform: `rotate(${G.rot}deg)` });
+glass.innerHTML = '<div id="sea"><div id="yt"></div></div><video id="cam" autoplay muted playsinline></video><div id="sheen"></div><div id="bevel"></div>';
+mirror.el.appendChild(glass);
+const sea = $('sea'), cam = $('cam'), sheen = $('sheen');
+
+await Promise.all(objs.map(o => o.img.decode().catch(()=>{})));
+for (const o of objs){
+  if (o.kind === 'fixed' || o.kind === 'shelf') continue;
+  const c = document.createElement('canvas'); c.width = Math.ceil(o.w / 2); c.height = Math.ceil(o.h / 2);
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(o.img, 0, 0, c.width, c.height);
+  try { const d = g.getImageData(0, 0, c.width, c.height).data; o.alpha = new Uint8Array(c.width * c.height); for (let i = 0; i < o.alpha.length; i++) o.alpha[i] = d[i * 4 + 3]; o.aw = c.width; } catch(e){}
+}
+try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); for (const id in s) if (byId[id]) { byId[id].x = s[id].x; byId[id].y = s[id].y; } } catch(e){}
+function save(){ try { const s = {}; for (const o of objs) if (o.x !== o.bx || o.y !== o.by) s[o.id] = { x: Math.round(o.x), y: Math.round(o.y) }; localStorage.setItem(SAVE_KEY, JSON.stringify(s)); } catch(e){} }
+
+/* ———————————— camera ———————————— */
+let cs = 1, csFit = 1, z = 1, ox = 0, oy = 0, tox = 0, toy = 0, vmom = 0, first = true, ztw = null;
+const zMax = () => Math.max(1.5, 1.1 / csFit);
+const portrait = () => innerWidth / innerHeight < 1;
+function roomY(){   // the camera position that shows the whole wall, centred
+  const vh = innerHeight, cy = (BOX.y0 + BOX.y1) / 2;
+  return (portrait() ? vh * .55 : vh * .5) - (PT + cy) * cs;
+}
+function fit(){
+  const vw = innerWidth, vh = innerHeight, pt = portrait();
+  const bw = BOX.x1 - BOX.x0, bh = BOX.y1 - BOX.y0;
+  // the arrangement takes a modest share of the screen; the rest is wall
+  csFit = pt ? (vw * .94) / bw : Math.min((vw * .56) / bw, (vh * .70) / bh);
+  z = Math.min(z, zMax()); cs = csFit * z;
+  // the wall above the room is as tall as the introduction needs
+  PT = Math.max(1200, (intro.offsetHeight + vh * .45) / csFit);
+  SHp = PT + H + PB;
+  scene.style.width = SWp + 'px'; scene.style.height = SHp + 'px';
+  $('stage').style.left = P + 'px'; $('stage').style.top = PT + 'px';
+  paintLight();
+  if (first || z === 1) tox = ox = vw / 2 - (P + (BOX.x0 + BOX.x1) / 2) * cs;
+  if (first){ toy = oy = 0; first = false; }
+  clamp();
+}
+function clamp(){
+  const vw = innerWidth, vh = innerHeight;
+  const minx = vw - SWp * cs, miny = vh - SHp * cs;
+  tox = Math.min(0, Math.max(minx, tox)); toy = Math.min(0, Math.max(miny, toy));
+  ox = Math.min(0, Math.max(minx, ox)); oy = Math.min(0, Math.max(miny, oy));
+}
+const toScene = (cx, cy) => ({ x: (cx - ox) / cs - P, y: (cy - oy) / cs - PT });
+
+/* light, placed relative to the room */
+function paintLight(){
+  const R = PT, X = P, cx = X + 1450, cy = R + 1075;
+  // daylight from a window up and to the left: the wall is brightest there and greys gently away
+  const sh = $('shade'); Object.assign(sh.style, { top: 0, height: '100%', WebkitMaskImage: 'none', maskImage: 'none' });
+  sh.style.background = `radial-gradient(ellipse 4200px 3400px at ${cx - 900}px ${cy - 700}px, #fff 0%, #fdfdfc 40%, #f3f2f0 75%, #ebeae7 100%)`;
+  $('warm').style.background = 'none';
+  $('lift').style.background = 'none';
+  const sun = $('sun'); sun.innerHTML = '';
+  const pool = document.createElement('i');
+  Object.assign(pool.style, { left: (cx - 2600) + 'px', top: (cy - 2200) + 'px', width: '4400px', height: '3600px',
+    background: 'radial-gradient(ellipse 50% 50% at 42% 42%, rgba(255,255,252,.32) 0%, rgba(255,255,250,.10) 50%, rgba(255,255,250,0) 78%)' });
+  sun.appendChild(pool);
+  $('nightdim').style.background = '#5d6878';
+}
+addEventListener('resize', () => { const k = -oy / (SHp * cs); fit(); toy = oy = -k * SHp * cs; clamp(); });
+fit();
+
+/* ———————————— picking ———————————— */
+function hit(p){
+  const order = objs.filter(o => o.kind === 'item' || o.kind === 'poster' || o.kind === 'mirror').sort((a, b) => b.z - a.z);
+  for (const o of order){
+    const lx = p.x - o.x, ly = p.y - o.y;
+    if (lx < 0 || ly < 0 || lx >= o.w || ly >= o.h) continue;
+    if (!o.alpha) return o;
+    if (o.alpha[Math.floor(ly / 2) * o.aw + Math.floor(lx / 2)] > 60) return o;
+  }
+  return null;
+}
+function inGlass(p){
+  const a = -(mirror.ang || 0) * Math.PI / 180, dx = p.x - PIVOT.x, dy = p.y - PIVOT.y;
+  const x = PIVOT.x + dx * Math.cos(a) - dy * Math.sin(a) - (mirror.x - mirror.bx), y = PIVOT.y + dx * Math.sin(a) + dy * Math.cos(a) - (mirror.y - mirror.by);
+  return ((x - G.cx) / G.rx) ** 2 + ((y - G.cy) / G.ry) ** 2 < 1;
+}
+
+/* ———————————— zoom ———————————— */
+function zoomAt(px, py, nz){
+  nz = Math.max(1, Math.min(zMax(), nz));
+  const sx = (px - ox) / cs, sy = (py - oy) / cs;
+  z = nz; cs = csFit * z;
+  ox = tox = px - sx * cs; oy = toy = py - sy * cs; clamp(); ox = tox; oy = toy;
+}
+function zoomTo(nz, rx, ry, dur = 1100){       // glide so room point (rx, ry) ends at the centre of the screen
+  nz = Math.max(1, Math.min(zMax(), nz));
+  const sx = P + rx, sy = PT + ry;
+  ztw = { z0: z, z1: nz, sx, sy, x0: ox + sx * cs, y0: oy + sy * cs, t0: performance.now(), dur };
+}
+function stepZoom(now){
+  if (!ztw) return;
+  const k = Math.min(1, (now - ztw.t0) / ztw.dur), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  z = ztw.z0 + (ztw.z1 - ztw.z0) * e; cs = csFit * z;
+  const tx = ztw.x0 + (innerWidth / 2 - ztw.x0) * e, ty = ztw.y0 + (innerHeight * (portrait() ? .55 : .5) - ztw.y0) * e;
+  ox = tox = tx - ztw.sx * cs; oy = toy = ty - ztw.sy * cs; clamp(); ox = tox; oy = toy;
+  if (k >= 1) ztw = null;
+}
+const wallCentre = () => [(BOX.x0 + BOX.x1) / 2, (BOX.y0 + BOX.y1) / 2];
+$('zIn').addEventListener('click', () => zoomAt(innerWidth / 2, innerHeight / 2, z * 1.5));
+$('zOut').addEventListener('click', () => zoomAt(innerWidth / 2, innerHeight / 2, z / 1.5));
+$('zFit').addEventListener('click', () => zoomTo(1, ...wallCentre()));
+
+/* ———————————— the mirror: first it shows you, then it lets the sea in ———————————— */
+let camOn = false;
+async function startCam(){
+  if (camOn) return true;
+  try{
+    cam.srcObject = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
+    camOn = true; B.classList.add('cam'); $('bCam').textContent = 'stop seeing'; return true;
+  } catch(e){ return false; }
+}
+function stopCam(){
+  if (cam.srcObject) cam.srcObject.getTracks().forEach(t => t.stop());
+  cam.srcObject = null; camOn = false; B.classList.remove('cam'); $('bCam').textContent = 'see yourself';
+}
+let seaHint = null, camAsked = false;
+async function meetMirror(){
+  if (camOn || open) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ say('Look into the mirror'); return; }
+  say('The mirror would like to see you.\nNothing is recorded or sent.');
+  if (await startCam()) say('That is you, in the mirror.\nTouch the glass, and wait.');
+  else say('The mirror can’t see you here.\nTouch the glass anyway.');
+}
+async function touchGlass(){
+  if (open){ toggleMirror(); if (camOn) say('Only you again, in the mirror'); return; }
+  if (!camOn){
+    zoomTo(Math.min(zMax(), (innerHeight * .62) / (G.ry * 2 * csFit)), G.cx, G.cy);
+    say('Look into the mirror…');
+    const ok = camAsked ? false : await startCam();
+    if (ok){
+      say('That is you, in the mirror.\nTouch the glass again, and wait.');
+      clearTimeout(seaHint);
+      return;
+    }
+    say('The mirror can’t see you here —\nso it shows you the sea instead');
+  }
+  toggleMirror();
+}
+$('bCam').addEventListener('click', async () => {
+  if (camOn){ stopCam(); return; }
+  zoomTo(Math.min(zMax(), (innerHeight * .62) / (G.ry * 2 * csFit)), G.cx, G.cy);
+  if (await startCam()) say('That is you, in the mirror.\nTouch the glass to let the sea in.');
+  else say('The mirror couldn’t see you —\nthe camera isn’t allowed here');
+});
+
+/* ———————————— words on the wall ———————————— */
+const NOTES_KEY = 'chora-notes-v1';
+const notesG = $('notesG'), inkNow = $('inkNow');
+const notes = { list: [], db: null, uid: null, shared: false, canWrite: true };
+function strokeD(a){
+  if (a.length < 4) return a.length === 2 ? `M${a[0]},${a[1]}l.1,.1` : '';
+  let d = `M${a[0]},${a[1]}`;
+  for (let i = 2; i < a.length - 2; i += 2){ const mx = (a[i] + a[i + 2]) / 2, my = (a[i + 1] + a[i + 3]) / 2; d += `Q${a[i]},${a[i + 1]} ${mx},${my}`; }
+  return d + `L${a[a.length - 2]},${a[a.length - 1]}`;
+}
+const drawn = new Map();
+function renderNotes(){
+  const keep = new Set();
+  for (const n of notes.list){
+    keep.add(n.id);
+    if (drawn.has(n.id)) continue;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.classList.add('new');
+    for (const st of (n.s || [])) { const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', strokeD(st)); p.setAttribute('stroke-width', n.w || 6); g.appendChild(p); }
+    notesG.appendChild(g); drawn.set(n.id, g); requestAnimationFrame(() => requestAnimationFrame(() => g.classList.remove('new')));
+  }
+  for (const [id, g] of drawn) if (!keep.has(id)){ g.remove(); drawn.delete(id); }
+}
+function loadLocal(){ try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]'); } catch(e){ return []; } }
+function saveLocal(){ try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes.list.filter(n => n.local))); } catch(e){} }
+notes.list = loadLocal(); renderNotes();
+function addNote(n){
+  notes.list.push({ ...n, id: 'l' + Date.now(), local: true, mine: true }); saveLocal(); renderNotes();
+}
+function eraseLast(){
+  const mine = notes.list.filter(n => n.mine).sort((a, b) => a.t - b.t).pop(); if (!mine) return;
+  notes.list = notes.list.filter(n => n !== mine); saveLocal(); renderNotes();
+}
+let pen = false, cur = null, pending = [], commitT = null;
+function setPen(on){
+  pen = on; B.classList.toggle('pen', on);
+  $('bPen').textContent = on ? 'done writing' : 'write on the wall';
+  if (on && z < 1.6) zoomAt(innerWidth / 2, innerHeight / 2, Math.min(zMax(), 1.8));
+  if (!on) commit();
+}
+function commit(){
+  clearTimeout(commitT);
+  if (!pending.length) return;
+  const n = { s: pending.map(a => a.map(v => Math.round(v))), w: +(2.6 / cs).toFixed(1), t: Date.now() };
+  pending = []; inkNow.innerHTML = '';
+  addNote(n);
+}
+$('bPen').addEventListener('click', () => setPen(!pen));
+$('bDone').addEventListener('click', () => setPen(false));
+$('bUndo').addEventListener('click', () => { if (pending.length){ pending = []; inkNow.innerHTML = ''; } else eraseLast(); });
+
+/* ———————————— input ———————————— */
+let drag = null, pan = null, hoverO = null;
+const tag = $('tag');
+view.addEventListener('wheel', e => {
+  e.preventDefault();
+  if ((e.ctrlKey || e.metaKey) && arrived){ ztw = null; zoomAt(e.clientX, e.clientY, z * Math.exp(-e.deltaY * .01)); return; }
+  const k = e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? innerHeight : 1;
+  toy -= e.deltaY * k * .9; tox -= e.deltaX * k * .9; vmom = 0; clamp();
+}, { passive: false });
+addEventListener('keydown', e => {
+  const step = innerHeight * .75;
+  if (['ArrowDown', 'PageDown', ' '].includes(e.key)){ toy -= e.key === 'ArrowDown' ? 120 : step; clamp(); e.preventDefault(); }
+  if (['ArrowUp', 'PageUp'].includes(e.key)){ toy += e.key === 'ArrowUp' ? 120 : step; clamp(); e.preventDefault(); }
+  if (e.key === 'Home'){ toy = 0; clamp(); } if (e.key === 'End'){ toy = roomY(); clamp(); }
+});
+const touches = new Map(); let pinch = null;
+view.addEventListener('pointerdown', e => {
+  if (e.target.closest && e.target.closest('#oval')){ toy = roomY(); clamp(); return; }
+  e.preventDefault(); ztw = null;
+  touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  view.setPointerCapture(e.pointerId);
+  if (touches.size === 2 && arrived){
+    // a second finger: pinch to zoom, whatever the first one was doing
+    if (drag){ drag.o.el.classList.remove('lift'); if (drag.o.kind === 'item'){ drag.o.state = 'fall'; drag.o.vy = 0; drag.o.target = landing(drag.o); } else drag.o.state = 'rest'; drag = null; }
+    cur = null; pan = null;
+    const [a, b] = [...touches.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z0: z, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    return;
+  }
+  const p = toScene(e.clientX, e.clientY);
+  if (pen && arrived && !hit(p)){
+    cur = [p.x, p.y]; pending.push(cur); clearTimeout(commitT);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path'); path.setAttribute('stroke-width', (2.6 / cs).toFixed(1));
+    path.setAttribute('filter', 'url(#pencil)'); path.style.opacity = .82; inkNow.appendChild(path); cur.el = path;
+    return;
+  }
+  const o = hit(p);
+  if (o){
+    drag = { o, gx: p.x - o.x, gy: p.y - o.y, sx: e.clientX, sy: e.clientY, moved: 0, glass: o === mirror && inGlass(p) };
+    o.z = o.layerZ * 100 + Math.min(99, ++touch); o.el.style.zIndex = 9999;
+    if (o.kind !== 'mirror'){ o.state = 'drag'; o.el.classList.add('lift'); }
+    view.style.cursor = 'grabbing';
+  } else {
+    pan = { sx: e.clientX, sy: e.clientY, ox: tox, oy: toy, ly: e.clientY, t: performance.now(), v: 0 };
+    vmom = 0;
+  }
+});
+view.addEventListener('pointermove', e => {
+  if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && touches.size >= 2){
+    const [a, b] = [...touches.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    ox = tox = ox + (mx - pinch.mx); oy = toy = oy + (my - pinch.my); pinch.mx = mx; pinch.my = my;
+    zoomAt(mx, my, pinch.z0 * d / pinch.d); return;
+  }
+  const p = toScene(e.clientX, e.clientY);
+  if (cur){
+    const lx = cur[cur.length - 2], ly = cur[cur.length - 1];
+    if (Math.hypot(p.x - lx, p.y - ly) * cs > 1.6 && cur.length < 3000){ cur.push(p.x, p.y); cur.el.setAttribute('d', strokeD(cur)); }
+    return;
+  }
+  if (drag){
+    const o = drag.o; drag.moved = Math.max(drag.moved, Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy));
+    if (o === mirror){
+      if (drag.moved > 5){ o.state = 'drag'; const a = Math.atan2(-(p.x - PIVOT.x), p.y - PIVOT.y) * 180 / Math.PI; o.ang = Math.max(-32, Math.min(32, a)); o.av = 0; }
+    } else {
+      const nx = Math.max(-o.w * .4, Math.min(W - o.w * .6, p.x - drag.gx));
+      const ny = Math.max(-o.h * .3 - 200, Math.min(H - o.h * .5, p.y - drag.gy));
+      const vx = nx - o.x; o.x = nx; o.y = ny;
+      o.rotT = Math.max(-9, Math.min(9, o.rotT * .6 + (o.kind === 'poster' ? -vx * .08 : -vx * .22)));
+    }
+    return;
+  }
+  if (pan){
+    const now = performance.now();
+    tox = pan.ox + e.clientX - pan.sx; toy = pan.oy + e.clientY - pan.sy; clamp(); ox = tox; oy = toy;
+    pan.v = (e.clientY - pan.ly) / Math.max(1, now - pan.t) * 16; pan.ly = e.clientY; pan.t = now;
+    return;
+  }
+  const o = hit(p);
+  if (o !== hoverO){ hoverO && hoverO.el.classList.remove('hover'); hoverO = o; o && o.kind !== 'mirror' && o.el.classList.add('hover'); }
+  const overOval = e.target.closest && e.target.closest('#oval');
+  view.style.cursor = overOval ? 'pointer' : o ? (o === mirror && inGlass(p) ? 'pointer' : 'grab') : 'default';
+  const overGlass = o === mirror && inGlass(p);
+  B.classList.toggle('peek', overGlass && !open);
+  const label = o && (o === mirror ? (overGlass ? (open ? 'close the mirror' : camOn ? 'let the sea in' : 'look into the mirror') : 'nudge the mirror') : o.label);
+  if (label){ tag.textContent = label; tag.style.left = e.clientX + 'px'; tag.style.top = e.clientY + 'px'; tag.classList.add('on'); }
+  else tag.classList.remove('on');
+  const dx = e.clientX / innerWidth - .5, dy = e.clientY / innerHeight - .5;
+  sheen.style.setProperty('--sx', (-dx * 90) + 'px'); sheen.style.setProperty('--sy', (-dy * 70) + 'px');
+  par.tx = dx * 2; par.ty = dy * 2;
+});
+function release(e){
+  if (e && e.pointerId !== undefined) touches.delete(e.pointerId);
+  if (pinch){ if (touches.size < 2) pinch = null; return; }
+  if (cur){ cur.el.setAttribute('d', strokeD(cur)); delete cur.el; cur = null; clearTimeout(commitT); commitT = setTimeout(commit, 1800); return; }
+  if (drag){
+    const o = drag.o; o.el.classList.remove('lift');
+    if (o === mirror){ if (drag.moved <= 5 && drag.glass) touchGlass(); o.state = 'swing'; }
+    else if (o.kind === 'item'){ o.state = 'fall'; o.vy = 0; o.target = landing(o); }
+    else { o.state = 'rest'; o.rotT = 0; save(); }
+    o.el.style.zIndex = o.z; drag = null; view.style.cursor = 'default';
+  }
+  if (pan){ vmom = Math.max(-60, Math.min(60, pan.v)); pan = null; }
+}
+view.addEventListener('pointerup', release);
+view.addEventListener('pointercancel', release);
+view.addEventListener('dblclick', e => {
+  if (pen || !arrived) return;
+  const p = toScene(e.clientX, e.clientY); if (hit(p)) return;
+  if (z < 1.6) zoomTo(Math.min(zMax(), 2.6), p.x, p.y); else zoomTo(1, ...wallCentre());
+});
+
+function surfaceY(id, x){ const s = M.shelves[id]; if (id === 'shelf_right') return 1812; return s.k * x + s.b; }
+function landing(o){
+  const cx = o.x + o.w / 2, bottom = o.y + o.bottomOff; let best = null;
+  for (const id in M.shelves){
+    const s = M.shelves[id]; if (cx < s.x0 - 10 || cx > s.x1 + 10) continue;
+    const y = surfaceY(id, cx); if (y >= bottom - 45 && (best === null || y < best)) best = y;
+  }
+  return best;
+}
+$('bReset').addEventListener('click', () => {
+  for (const o of objs){ o.state = 'tween'; o.from = { x: o.x, y: o.y }; o.t0 = performance.now(); }
+  mirror.av += 3; try { localStorage.removeItem(SAVE_KEY); } catch(e){}
+  if (!open) say('Everything is back in its place');
+});
+
+/* ———————————— frame loop ———————————— */
+const par = { x: 0, y: 0, tx: 0, ty: 0 };
+let notice = 0, arrived = false;
+function frame(now){
+  stepZoom(now);
+  if (!pan){ if (Math.abs(vmom) > .05){ toy += vmom; vmom *= .93; clamp(); } }
+  ox += (tox - ox) * .12; oy += (toy - oy) * .12;
+  scene.style.transform = `translate3d(${ox}px,${oy}px,0) scale(${cs})`;
+  intro.style.transform = `translate3d(0,${oy}px,0)`;
+  const roomTop = oy + PT * cs;
+  const here = roomTop < innerHeight * .5;
+  if (here !== arrived){ arrived = here; B.classList.toggle('arrived', here); if (here && !started) setTimeout(() => begin(false), 900); if (here && !camAsked){ camAsked = true; setTimeout(meetMirror, 1100); } }
+
+  const ix = Math.sin(now / 5200) * .18, iy = Math.cos(now / 6700) * .12;
+  par.x += (par.tx + ix - par.x) * .045; par.y += (par.ty + iy - par.y) * .045;
+  for (const o of objs){
+    if (o.state === 'fall'){
+      o.vy += 2.6; o.y += o.vy;
+      if (o.target !== null && o.y + o.bottomOff >= o.target){
+        o.y = o.target - o.bottomOff;
+        if (o.vy > 9){ o.vy = -o.vy * .2; o.sq = .955; } else { o.vy = 0; o.state = 'rest'; save(); }
+        o.rotT = 0;
+      } else if (o.target === null && o.y > H + 120){
+        o.state = 'return'; o.x = o.bx; o.y = o.by - 60; o.op = 0; o.t0 = now; o.rot = 0; o.rotT = 0;
+        if (now - notice > 2500){ notice = now; const prev = $('status').textContent; say('It fell to the floor —\nput back where it was'); setTimeout(() => say(prev), 2600); }
+      }
+    } else if (o.state === 'return'){
+      const k = Math.min(1, (now - o.t0) / 900), e = 1 - Math.pow(1 - k, 3);
+      o.y = o.by - 60 * (1 - e); o.op = e; if (k >= 1){ o.state = 'rest'; o.op = 1; save(); }
+    } else if (o.state === 'tween'){
+      const k = Math.min(1, (now - o.t0) / 900), e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      o.x = o.from.x + (o.bx - o.from.x) * e; o.y = o.from.y + (o.by - o.from.y) * e; if (k >= 1) o.state = 'rest';
+    }
+    if (o === mirror && o.state !== 'drag'){
+      o.av += (-o.ang * .012 - o.av * .035); o.ang += o.av;
+      if (Math.abs(o.ang) < .01 && Math.abs(o.av) < .01){ o.ang = 0; o.av = 0; }
+    }
+    if (o.state !== 'drag') o.rotT *= .86;
+    o.rot += (o.rotT - o.rot) * .2; o.sq += (1 - o.sq) * .25;
+    const px = -par.x * o.depth * 22, py = -par.y * o.depth * 14;
+    o.el.style.transform = `translate3d(${o.x + px}px,${o.y + py}px,0) rotate(${o === mirror ? o.ang : o.rot}deg) scaleY(${o.sq})`;
+    o.el.style.opacity = o.op;
+  }
+  const a = mirror.ang * Math.PI / 180, dx = G.cx - PIVOT.x, dy = G.cy - PIVOT.y;
+  const gx = PIVOT.x + dx * Math.cos(a) - dy * Math.sin(a) - par.x * mirror.depth * 22 + (mirror.x - mirror.bx);
+  const gy = PIVOT.y + dx * Math.sin(a) + dy * Math.cos(a) - par.y * mirror.depth * 14 + (mirror.y - mirror.by);
+  scene.style.setProperty('--gx', (gx + P) + 'px'); scene.style.setProperty('--gy', (gy + PT) + 'px');
+  $('glow').style.background = `radial-gradient(ellipse 420px 500px at ${gx + P}px ${gy + PT}px, rgba(60,130,160,.36) 0%, rgba(40,95,125,.12) 45%, rgba(0,0,0,0) 80%)`;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+scene.classList.add('ready');
+
+KhoraTondo.build(document.querySelector('#oval svg.t'));
+
+/* ———————————— the deep sea ———————————— */
+const SOURCES = [
+  { type:'live', channel:'UC1m5LdKP0m64n8nY3NhK6Zg', who:'Schmidt Ocean Institute', ship:'R/V Falkor (too) · ROV SuBastian' },
+  { type:'live', channel:'UC1KOOWHthbQVXH2kZue3_xA', who:'Ocean Exploration Trust', ship:'E/V Nautilus' },
+  { type:'live', channel:'UCe_3CoEeinvPMze2u_aENBg', who:'NOAA Ocean Exploration', ship:'Okeanos Explorer' },
+  { type:'hls',  url:'https://stream.ocean.washington.edu/camhdLive/camhdWSE/playlist.m3u8', who:'Ocean Observatories Initiative', ship:'Axial Seamount · the Mushroom vent · about 1,500 m down' },
+  { type:'rec',  id:'ZXBCsApYyDc', start:600, who:'Schmidt Ocean Institute', ship:'Saanich Inlet, a cliff dive' },
+  { type:'rec',  id:'xiEGIqwciVA', start:600, who:'Schmidt Ocean Institute', ship:'Fiji, hydrothermal vents' },
+];
+let player = null, idx = -1, shown = false, timer = null, muted = true, tried = 0, started = false, open = false;
+function fitIframe(){
+  const fr = sea.querySelector('iframe'); if (!fr) return;
+  const w = G.rx * 2, h = G.ry * 2; let iw, ih;
+  if (w / h > 16 / 9){ iw = w; ih = w * 9 / 16; } else { ih = h; iw = h * 16 / 9; }
+  fr.style.width = iw * 1.2 + 'px'; fr.style.height = ih * 1.2 + 'px';
+}
+function caption(){
+  const s = SOURCES[idx]; if (!s) return;
+  say(s.type === 'live' ? `Now · live · ${s.who}\n${s.ship}` : `No one is diving right now · a recording\n${s.ship}`);
+}
+function reveal(){                       // a stream is playing (still hidden unless the mirror is open)
+  if (shown) return; shown = true; clearTimeout(timer); B.classList.add('live');
+  if (open) caption(); else { try{ player.pauseVideo(); }catch(e){} }
+}
+function toggleMirror(){
+  open = !open;
+  B.classList.toggle('deep', open); B.classList.remove('peek');
+  if (open){
+    if (shown){ try{ player.playVideo(); }catch(e){} caption(); }
+    else if (!started) begin(true);
+    else say('Reaching down…');
+  } else {
+    try{ player.pauseVideo(); }catch(e){}
+    say('Look into the mirror');
+  }
+}
+function tune(i){
+  clearTimeout(timer); shown = false; B.classList.remove('live');
+  if (player && player.destroy) try{ player.destroy(); }catch(e){}
+  sea.innerHTML = '<div id="yt"></div>';
+  idx = (i + SOURCES.length) % SOURCES.length;
+  const s = SOURCES[idx];
+  if (open) say(s.type === 'live' ? `Looking for a vehicle on a dive…\n${s.who}` : s.type === 'hls' ? 'Looking in on a camera on the seafloor…\nAxial Seamount' : 'No live dive right now\nfetching a recorded one…');
+  if (s.type === 'hls'){ tuneHls(s); return; }
+  if (!window.YT || !YT.Player){ setTimeout(() => next(true), 0); return; }   // YouTube unreachable here: skip it
+  const events = {
+    onReady: e => { try{ muted ? e.target.mute() : e.target.unMute(); e.target.playVideo(); }catch(_){} },
+    onStateChange: e => { if (e.data === 1) reveal(); if (e.data === 0) next(true); },
+    onError: () => next(true),
+  };
+  const origin = encodeURIComponent(location.origin);
+  if (s.type === 'live'){
+    const fr = document.createElement('iframe'); fr.allow = 'autoplay; encrypted-media';
+    fr.src = `https://www.youtube.com/embed/live_stream?channel=${s.channel}&autoplay=1&mute=1&controls=0&playsinline=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&origin=${origin}`;
+    sea.querySelector('#yt').replaceWith(fr); player = new YT.Player(fr, { events });
+  } else {
+    player = new YT.Player('yt', { videoId: s.id,
+      playerVars:{ autoplay:1, mute:1, controls:0, playsinline:1, rel:0, iv_load_policy:3, disablekb:1, fs:0, start:s.start||0, origin:location.origin }, events });
+  }
+  fitIframe(); setTimeout(fitIframe, 300);
+  timer = setTimeout(() => { if (!shown) next(true); }, s.type === 'live' ? 15000 : 22000);
+}
+function tuneHls(s){
+  const v = document.createElement('video'); v.muted = muted; v.playsInline = true; v.autoplay = true; v.setAttribute('playsinline', '');
+  sea.querySelector('#yt').replaceWith(v);
+  let hls = null;
+  player = { pauseVideo(){ v.pause(); }, playVideo(){ v.play().catch(()=>{}); }, mute(){ v.muted = true; }, unMute(){ v.muted = false; },
+             destroy(){ try{ hls && hls.destroy(); }catch(e){} v.removeAttribute('src'); v.load(); } };
+  v.addEventListener('playing', () => reveal(), { once: true });
+  v.addEventListener('error', () => next(true), { once: true });
+  const go = () => {
+    if (v.canPlayType('application/vnd.apple.mpegurl')){ v.src = s.url; v.play().catch(()=>{}); }
+    else if (window.Hls && Hls.isSupported()){
+      hls = new Hls({ lowLatencyMode: true }); hls.loadSource(s.url); hls.attachMedia(v);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => v.play().catch(()=>{}));
+      hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) next(true); });
+    } else next(true);
+  };
+  if (window.Hls || v.canPlayType('application/vnd.apple.mpegurl')) go();
+  else { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js'; sc.onload = go; sc.onerror = () => next(true); document.head.appendChild(sc); }
+  timer = setTimeout(() => { if (!shown) next(true); }, 15000);
+}
+function next(auto){
+  tried++;
+  if (auto && tried >= SOURCES.length){ shown = false; tried = 0; if (open) say(location.hostname.endsWith('claude.ai') || location.hostname.includes('claudeusercontent') ? 'The live sea can’t reach this preview —\nit opens once the page is on your own site' : 'The deep is quiet right now\nthe mirror is only a mirror'); return; }
+  tune(idx + 1);
+}
+function begin(loud){
+  if (started) return;
+  if (location.protocol === 'file:'){ if (loud) say('Open this from a web address —\nlocal files can’t reach the sea'); return; }
+  if (!window.YT || !YT.Player){
+    begin.n = (begin.n || 0) + 1;
+    if (begin.n > 6){ begin.n = 0; started = true; tried = 0; tune(idx < 0 ? 0 : idx); return; }
+    if (open) say('Reaching down…'); setTimeout(() => begin(loud || open), 800); return;
+  }
+  started = true; tried = 0; tune(idx < 0 ? 0 : idx);
+}
+$('bNext').addEventListener('click', () => { if (!open) toggleMirror(); started = true; tried = 0; tune(idx + 1); });
+$('bSound').addEventListener('click', () => {
+  muted = !muted; $('bSound').textContent = muted ? 'sound off' : 'sound on';
+  try{ muted ? player.mute() : player.unMute(); }catch(e){}
+});
+
+(function(){
+  const c = document.createElement('canvas'); c.width = c.height = 180; const g = c.getContext('2d'); const d = g.createImageData(180, 180);
+  for (let i = 0; i < d.data.length; i += 4){ const v = Math.random() * 255; d.data[i] = d.data[i+1] = d.data[i+2] = v; d.data[i+3] = 255; }
+  g.putImageData(d, 0, 0); $('grain').style.background = `url(${c.toDataURL()})`;
+})();
+/* dust in the light; when the mirror opens it slows and falls like marine snow */
+(function(){
+  const cv = $('motes'), g = cv.getContext('2d');
+  const N = 34, ps = Array.from({ length: N }, () => ({ x: Math.random(), y: Math.random(), r: .5 + Math.random() * 1.6, vx: (Math.random() - .5) * .004, vy: (Math.random() - .6) * .004, a: .2 + Math.random() * .6, ph: Math.random() * 6.28 }));
+  let mix = 0, last = performance.now(), vis = 0;
+  function draw(now){
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    const dpr = Math.min(2, devicePixelRatio || 1), w = innerWidth * dpr, h = innerHeight * dpr;
+    if (cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+    vis += ((B.classList.contains('arrived') ? 1 : 0) - vis) * .03;
+    mix += ((open ? 1 : 0) - mix) * .02;
+    g.clearRect(0, 0, w, h);
+    if (vis > .01){
+      // where the sunlight is on screen
+      const sx = (ox + (P + 500) * cs) * dpr, sy = (oy + (PT + 520) * cs) * dpr, sr = 900 * cs * dpr;
+      for (const p of ps){
+        p.ph += dt;
+        p.x += (p.vx * (1 - mix) + Math.sin(p.ph * .7) * .0004) * dt * 10;
+        p.y += (p.vy * (1 - mix) + .0035 * mix) * dt * 10;
+        if (p.x < -.02) p.x = 1.02; if (p.x > 1.02) p.x = -.02; if (p.y < -.02) p.y = 1.02; if (p.y > 1.02) p.y = -.02;
+        const x = p.x * w, y = p.y * h;
+        const inBeam = Math.max(0, 1 - Math.hypot(x - sx, y - sy) / sr);
+        const a = p.a * vis * (mix * .5 + (1 - mix) * (.05 + inBeam * .35)) * (.7 + Math.sin(p.ph * 2) * .3);
+        if (a < .01) continue;
+        const r = Math.round(255 - 75 * mix), gg = Math.round(252 - 16 * mix), b = Math.round(244 - 4 * mix);
+        g.fillStyle = `rgba(${r},${gg},${b},${a.toFixed(3)})`;
+        g.beginPath(); g.arc(x, y, p.r * dpr * (1 + inBeam * .4), 0, 6.283); g.fill();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+const tagYT = document.createElement('script'); tagYT.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tagYT);
+})();
+</script>
+</body>
+</html>

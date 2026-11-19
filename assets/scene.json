@@ -1,0 +1,261 @@
+{
+ "w": 2856,
+ "h": 2142,
+ "pad": 300,
+ "padTop": 4000,
+ "sw": 3456,
+ "sh": 6142,
+ "wallScale": 2,
+ "glass": {
+  "cx": 1125,
+  "cy": 1659,
+  "rx": 168.5,
+  "ry": 216.5,
+  "rot": 1.3
+ },
+ "layers": [
+  {
+   "id": "floral",
+   "x": 968,
+   "y": 1251,
+   "w": 664,
+   "h": 468,
+   "bottom": 1718,
+   "kind": "fixed",
+   "depth": 0.1,
+   "z": 3,
+   "label": "\u82b1\u5349\u56fe\u8c31"
+  },
+  {
+   "id": "diatom",
+   "x": 388,
+   "y": 1408,
+   "w": 521,
+   "h": 695,
+   "bottom": 2102,
+   "kind": "poster",
+   "depth": 0.1,
+   "z": 3,
+   "label": "\u7845\u85fb\u56fe\u8c31"
+  },
+  {
+   "id": "haeckel",
+   "x": 2186,
+   "y": 843,
+   "w": 509,
+   "h": 619,
+   "bottom": 1461,
+   "kind": "poster",
+   "depth": 0.1,
+   "z": 3,
+   "label": "\u6d77\u514b\u5c14 \u00b7 \u5730\u8863"
+  },
+  {
+   "id": "mirror",
+   "x": 911,
+   "y": 1171,
+   "w": 429,
+   "h": 749,
+   "bottom": 1919,
+   "kind": "mirror",
+   "depth": 0.3,
+   "z": 5
+  },
+  {
+   "id": "shelf_top",
+   "x": 1474,
+   "y": 440,
+   "w": 1106,
+   "h": 282,
+   "bottom": 720,
+   "kind": "shelf",
+   "depth": 0.55,
+   "z": 6
+  },
+  {
+   "id": "shelf_left",
+   "x": 197,
+   "y": 878,
+   "w": 1683,
+   "h": 277,
+   "bottom": 1153,
+   "kind": "shelf",
+   "depth": 0.55,
+   "z": 6
+  },
+  {
+   "id": "shelf_right",
+   "x": 1755,
+   "y": 1491,
+   "w": 825,
+   "h": 366,
+   "bottom": 1856,
+   "kind": "shelf",
+   "depth": 0.6,
+   "z": 6
+  },
+  {
+   "id": "book",
+   "x": 1561,
+   "y": 72,
+   "w": 477,
+   "h": 558,
+   "bottom": 628,
+   "kind": "item",
+   "depth": 0.62,
+   "z": 7,
+   "shelf": "shelf_top",
+   "label": "Fungarium"
+  },
+  {
+   "id": "frame",
+   "x": 674,
+   "y": 421,
+   "w": 574,
+   "h": 717,
+   "bottom": 1136,
+   "kind": "item",
+   "depth": 0.62,
+   "z": 7,
+   "shelf": "shelf_left",
+   "label": "\u753b\u6846"
+  },
+  {
+   "id": "postcards",
+   "x": 1417,
+   "y": 892,
+   "w": 321,
+   "h": 214,
+   "bottom": 1104,
+   "kind": "item",
+   "depth": 0.62,
+   "z": 7,
+   "shelf": "shelf_left",
+   "label": "\u660e\u4fe1\u7247"
+  },
+  {
+   "id": "smallframe",
+   "x": 1829,
+   "y": 1439,
+   "w": 188,
+   "h": 279,
+   "bottom": 1716,
+   "kind": "item",
+   "depth": 0.64,
+   "z": 7,
+   "shelf": "shelf_right",
+   "label": "\u5c0f\u76f8\u6846"
+  },
+  {
+   "id": "card",
+   "x": 2294,
+   "y": 1644,
+   "w": 166,
+   "h": 108,
+   "bottom": 1750,
+   "kind": "item",
+   "depth": 0.64,
+   "z": 7,
+   "shelf": "shelf_right",
+   "label": "\u4e66\u7b7e\u5361"
+  },
+  {
+   "id": "bottle",
+   "x": 2054,
+   "y": 132,
+   "w": 157,
+   "h": 506,
+   "bottom": 637,
+   "kind": "item",
+   "depth": 0.66,
+   "z": 8,
+   "shelf": "shelf_top",
+   "label": "Riesling"
+  },
+  {
+   "id": "vase",
+   "x": 2219,
+   "y": 391,
+   "w": 272,
+   "h": 250,
+   "bottom": 633,
+   "kind": "item",
+   "depth": 0.66,
+   "z": 8,
+   "shelf": "shelf_top",
+   "label": "\u73bb\u7483\u74f6"
+  },
+  {
+   "id": "cup",
+   "x": 519,
+   "y": 1015,
+   "w": 122,
+   "h": 126,
+   "bottom": 1140,
+   "kind": "item",
+   "depth": 0.66,
+   "z": 8,
+   "shelf": "shelf_left",
+   "label": "\u5c0f\u676f"
+  },
+  {
+   "id": "pebble",
+   "x": 391,
+   "y": 1097,
+   "w": 132,
+   "h": 44,
+   "bottom": 1140,
+   "kind": "item",
+   "depth": 0.66,
+   "z": 8,
+   "shelf": "shelf_left",
+   "label": "\u77f3\u5934"
+  },
+  {
+   "id": "mushroom",
+   "x": 2114,
+   "y": 1493,
+   "w": 216,
+   "h": 320,
+   "bottom": 1812,
+   "kind": "item",
+   "depth": 0.7,
+   "z": 8,
+   "shelf": "shelf_right",
+   "label": "\u8611\u83c7"
+  },
+  {
+   "id": "plant",
+   "x": 1819,
+   "y": 939,
+   "w": 482,
+   "h": 876,
+   "bottom": 1814,
+   "kind": "item",
+   "depth": 0.74,
+   "z": 9,
+   "shelf": "shelf_right",
+   "label": "\u690d\u7269"
+  }
+ ],
+ "shelves": {
+  "shelf_top": {
+   "x0": 1480,
+   "x1": 2575,
+   "k": 0.010415256234067687,
+   "b": 610.8397613521386
+  },
+  "shelf_left": {
+   "x0": 200,
+   "x1": 1875,
+   "k": -0.03268279574262529,
+   "b": 1159.214334044439
+  },
+  "shelf_right": {
+   "x0": 1790,
+   "x1": 2590,
+   "k": 0.05879873732378083,
+   "b": 1646.847309071828
+  }
+ }
+}
