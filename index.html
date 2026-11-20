@@ -107,6 +107,12 @@
     transition:transform .6s cubic-bezier(.2,.8,.2,1)}
   #oval:hover{transform:scale(1.03)}
   #oval svg.t{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .bd p{margin:0 0 1em}
+  .bd p.wait{font-style:italic;text-align:center;margin:1.4em 0}
+  .bd a,.colo a{color:inherit;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;
+    background-color:transparent;padding-bottom:1px;opacity:1;transition:background-size .3s, color .3s;pointer-events:auto}
+  .bd a{background-image:linear-gradient(rgba(33,32,30,.35),rgba(33,32,30,.35))}
+  .bd a:hover{background-image:linear-gradient(rgba(33,32,30,.85),rgba(33,32,30,.85))}
   .bd{width:min(880px,88vw);margin:5.2vh auto 0;font:400 clamp(15px,1.28vw,18.5px)/1.5 "EB Garamond",serif;
       text-align:justify;hyphens:auto;-webkit-hyphens:auto;color:var(--ink)}
   .bd em{font-style:italic}
@@ -150,6 +156,13 @@
   #notes{position:absolute;left:0;top:0;width:2856px;height:2142px;overflow:visible;pointer-events:none;z-index:150}
   #notes path{fill:none;stroke:#3b3b40;stroke-linecap:round;stroke-linejoin:round}
   #notesG g{opacity:.82;transition:opacity 1.6s}
+  /* the same words, in fluorescent pencil: they wake when the room goes dark */
+  #glowStage{position:absolute;width:2856px;height:2142px;pointer-events:none;z-index:25000;opacity:0;transition:opacity 2.5s ease;mix-blend-mode:screen}
+  #glowNotes{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+  #glowG path{fill:none;stroke:#9ff5df;stroke-linecap:round;stroke-linejoin:round}
+  body.deep #glowStage{opacity:1;transition:opacity 5s ease 3.5s;animation:breathe-glow 7s ease-in-out 8.5s infinite alternate}
+  @keyframes breathe-glow{from{opacity:1}to{opacity:.72}}
+  body.deep #notesG{opacity:.25;transition:opacity 4s}
   #notesG g.new{opacity:0}
   #zoom,#penbar{position:fixed;z-index:6;display:flex;gap:6px;opacity:0;pointer-events:none;transition:opacity 1.2s}
   #zoom{left:clamp(14px,3vw,40px);bottom:calc(clamp(14px,3vh,36px) + env(safe-area-inset-bottom))}
@@ -171,6 +184,7 @@
 <div id="view">
   <div id="scene">
     <div id="wall"></div>
+    <div id="glowStage"><svg id="glowNotes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="glowF" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="14" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g id="glowG" filter="url(#glowF)"></g></svg></div>
     <div id="stage"><svg id="notes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.0" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs><g id="notesG" filter="url(#pencil)"></g><g id="inkNow"></g></svg><div id="objs"></div></div>
     <div id="shade" class="fx"></div>
     <div id="warm" class="fx"></div>
@@ -189,11 +203,15 @@
       <div>Is</div>
       <div>Ch<span id="oval" title="Go to the mirror"><svg class="t"></svg></span>ra<span class="q">?</span></div>
     </div>
-    <p class="bd">
-      <em>Chora</em> is an old Greek word for place&mdash;not a point on a map, but the room in which something is allowed to happen. In the <em>Timaeus</em>, Plato needed a third thing beside the eternal forms and the restless world of change: something that holds every appearance without becoming any of them. He called it chora, &ldquo;the receptacle, and in a manner the nurse, of all generation,&rdquo; and admitted that we catch sight of it only sideways, as in a dream. Some twenty-four centuries later Julia Kristeva borrowed the word for the space before language&mdash;rhythm, warmth, a voice heard from the inside&mdash;where a self is held before it learns to speak. Jacques Derrida let it stay strange: neither being nor nothing, a name that makes room for everything and keeps none of it. This wall is a chora of the smallest kind. It belongs to a workroom called the Ouvroir de Rhei, and it holds a book of fungi, a bottle of Riesling, a glass jar of dried leaves, Haeckel&rsquo;s lichens and diatoms, a plant leaning toward the window, and an oval mirror on a leather strap. Most of the time the mirror only gives back the room. But somewhere a robot is descending through dark water with its lamps on, and when it is, the mirror lets the deep sea in. Everything below may be touched. Pick things up, set them down, move the pictures; nothing here can break. Stay as long as you like.
-    </p>
+    <div class="bd">
+      <p><em><a href="https://en.wikipedia.org/wiki/Kh%C3%B4ra" target="_blank" rel="noopener">Chora</a></em> is an old Greek word for place&mdash;not a point on a map, but the room in which something is allowed to happen. The Greeks also used it for <a href="https://cambridge.org/core/books/cambridge-companion-to-ancient-athens/asty-and-chora-city-and-countryside/0599E3C41067E2DF9C4B4D82DB263BB3" target="_blank" rel="noopener">the farmland beyond a city&rsquo;s walls</a>: outside, and still belonging. In the <em><a href="https://www.gutenberg.org/ebooks/1572" target="_blank" rel="noopener">Timaeus</a></em>, Plato reached for it when he needed a third thing, something that holds every appearance and becomes none of them, <a href="https://www.ellopos.net/elpenor/greek-texts/ancient-greece/plato/plato-timaeus.asp?pg=28" target="_blank" rel="noopener">&ldquo;the receptacle, and in a manner the nurse, of all generation.&rdquo;</a> He admitted that we glimpse it only sideways, <a href="https://www.ellopos.net/elpenor/greek-texts/ancient-greece/plato/plato-timaeus.asp?pg=31" target="_blank" rel="noopener">as in a dream</a>. Julia Kristeva later took the word for <a href="https://en.wikipedia.org/wiki/Kh%C3%B4ra" target="_blank" rel="noopener">the place where a voice is held before it learns to speak</a>.</p>
+      <p>This wall is a chora of the smallest kind. It hangs in a workroom called the <a href="https://iehrhei.github.io/" target="_blank" rel="noopener">Ouvroir de Rhei</a>, among a book of fungi, Haeckel&rsquo;s lichens, a plant leaning toward the window&mdash;and an ordinary mirror on a leather strap. Look into it and it will show you yourself, as mirrors do.</p>
+      <p class="wait">Wait.</p>
+      <p>Somewhere <a href="https://oceanobservatories.org/?p=10023" target="_blank" rel="noopener">a camera rests on the seafloor</a>, or <a href="https://schmidtocean.org/cruises/" target="_blank" rel="noopener">a robot is descending with its lamps on</a>, and the mirror may let the deep sea through.</p>
+      <p>Nothing here can break. Move what you like; leave a word in pencil, and it will stay on your wall alone. To the room where things are allowed to happen, this wall is dedicated.</p>
+    </div>
     <div class="sig"><span>a wall, a mirror, and the deep sea</span><span>below &darr;</span></div>
-    <p class="colo">Live sea by courtesy of Schmidt Ocean Institute (R/V Falkor (too), ROV SuBastian), Ocean Exploration Trust (E/V Nautilus), NOAA Ocean Exploration, and the NSF Ocean Observatories Initiative / University of Washington (the high-definition camera at Axial Seamount). The figure in the O is drawn after an Attic red-figure cup of the fourth century BC: a Nereid on a dolphin. The mirror shows you only in your own browser; nothing is recorded or sent, and words left on the wall stay with you. &copy; 2026 Ouvroir de Rhei. All rights reserved.</p>
+    <p class="colo">Live sea by courtesy of Schmidt Ocean Institute (R/V Falkor (too), ROV SuBastian), Ocean Exploration Trust (E/V Nautilus), NOAA Ocean Exploration, and the NSF Ocean Observatories Initiative / University of Washington (the high-definition camera at Axial Seamount). The figure in the O is drawn after an Attic red-figure cup of the fourth century BC: a Nereid on a dolphin. The mirror shows you only in your own browser; nothing is recorded or sent, and words left on the wall stay with you. &copy; 2026 Ouvroir de Rhei. All rights reserved.<br>Plato, <em>Timaeus</em> 49a, 52b, tr. Benjamin Jowett (<a href="https://www.gutenberg.org/ebooks/1572" target="_blank" rel="noopener">Project Gutenberg</a>).</p>
   </div>
 </div>
 <canvas id="motes"></canvas>
@@ -282,6 +300,7 @@ function fit(){
   SHp = PT + H + PB;
   scene.style.width = SWp + 'px'; scene.style.height = SHp + 'px';
   $('stage').style.left = P + 'px'; $('stage').style.top = PT + 'px';
+  $('glowStage').style.left = P + 'px'; $('glowStage').style.top = PT + 'px';
   paintLight();
   if (first || z === 1) tox = ox = vw / 2 - (P + (BOX.x0 + BOX.x1) / 2) * cs;
   if (first){ toy = oy = 0; first = false; }
@@ -416,9 +435,10 @@ function renderNotes(){
     if (drawn.has(n.id)) continue;
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.classList.add('new');
     for (const st of (n.s || [])) { const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', strokeD(st)); p.setAttribute('stroke-width', n.w || 6); g.appendChild(p); }
-    notesG.appendChild(g); drawn.set(n.id, g); requestAnimationFrame(() => requestAnimationFrame(() => g.classList.remove('new')));
+    notesG.appendChild(g); drawn.set(n.id, g);
+    const gg = g.cloneNode(true); gg.classList.remove('new'); gg.dataset.id = n.id; $('glowG').appendChild(gg); g._glow = gg; requestAnimationFrame(() => requestAnimationFrame(() => g.classList.remove('new')));
   }
-  for (const [id, g] of drawn) if (!keep.has(id)){ g.remove(); drawn.delete(id); }
+  for (const [id, g] of drawn) if (!keep.has(id)){ g.remove(); if (g._glow) g._glow.remove(); drawn.delete(id); }
 }
 function loadLocal(){ try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]'); } catch(e){ return []; } }
 function saveLocal(){ try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes.list.filter(n => n.local))); } catch(e){} }
@@ -465,6 +485,7 @@ addEventListener('keydown', e => {
 });
 const touches = new Map(); let pinch = null;
 view.addEventListener('pointerdown', e => {
+  if (e.target.closest && e.target.closest('a')) return;
   if (e.target.closest && e.target.closest('#oval')){ toy = roomY(); clamp(); return; }
   e.preventDefault(); ztw = null;
   touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
