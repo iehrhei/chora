@@ -64,20 +64,22 @@
   #sun i{position:absolute;display:block;transform-origin:0 0}
   @keyframes breathe{0%{opacity:.78}45%{opacity:1}100%{opacity:.86}}
   /* the mirror's light: cool, and only when you look into it */
-  .hole{-webkit-mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%);
-                mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%)}
-  #night{mix-blend-mode:color;background:#22407a;opacity:0}
-  #nightdim{mix-blend-mode:multiply;opacity:0}
-  #glow{opacity:0;mix-blend-mode:screen}
-  #caustic{opacity:0;mix-blend-mode:screen;
-    background-image:url(assets/caustic.png),url(assets/caustic.png);
-    background-size:460px 460px, 700px 700px;
-    animation:drift 26s linear infinite;
-    -webkit-mask-image:radial-gradient(ellipse 620px 720px at var(--gx) var(--gy), transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%);
-            mask-image:radial-gradient(ellipse 620px 720px at var(--gx) var(--gy), transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%)}
-  @keyframes drift{from{background-position:0 0, 0 0}to{background-position:460px 230px, -700px 350px}}
-  body.peek #night{opacity:.32} body.peek #nightdim{opacity:.35} body.peek #sun{opacity:.35;animation:none} body.peek #glow{opacity:.35}
-  body.deep #night{opacity:.8;transition-duration:6s} body.deep #nightdim{opacity:1;transition-duration:6s}
+  /* the mirror's light. Painted once; afterwards only moved, so the graphics card never has to repaint it */
+  .follow{position:absolute;left:0;top:0;pointer-events:none;z-index:20000;transition:opacity 4.5s ease;will-change:transform,opacity}
+  #night{width:9000px;height:9000px;mix-blend-mode:multiply;opacity:0;
+    background:radial-gradient(ellipse 186px 236px at 50% 50%, #fff 0, #fff 90%, #4a5c82 100%)}
+  #glow{width:1000px;height:1200px;opacity:0;mix-blend-mode:screen;
+    background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(60,130,160,.36) 0%, rgba(40,95,125,.12) 45%, rgba(0,0,0,0) 80%)}
+  #caustic{width:1500px;height:1700px;opacity:0;mix-blend-mode:screen;overflow:hidden;
+    -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%);
+            mask-image:radial-gradient(ellipse 50% 50% at 50% 50%, transparent 0%, transparent 30%, #000 42%, rgba(0,0,0,.35) 70%, transparent 100%)}
+  #caustic i{position:absolute;left:-700px;top:-700px;width:2900px;height:3100px;background:url(assets/caustic.png) 0 0/460px 460px;will-change:transform;animation:drift1 26s linear infinite}
+  #caustic i + i{background-size:700px 700px;animation:drift2 34s linear infinite}
+  @keyframes drift1{from{transform:translate(0,0)}to{transform:translate(460px,460px)}}
+  @keyframes drift2{from{transform:translate(0,0)}to{transform:translate(-700px,700px)}}
+  body.peek #night{opacity:.42} body.peek #sun{opacity:.35;animation:none} body.peek #glow{opacity:.35}
+  body.deep #night{opacity:1;transition-duration:6s}
+  body.deep #glow{opacity:1} body.deep #caustic{opacity:.26}
   body.deep #sun, body.deep #warm{opacity:0;animation:none}
   body.deep #glow{opacity:1} body.deep #caustic{opacity:.26}
   body.deep #shade{opacity:.6}
@@ -162,7 +164,7 @@
     --uv:0px;transition:--uv 2.2s ease-in;
     -webkit-mask-image:radial-gradient(circle at 1125px 1659px, #000 calc(var(--uv) - 700px), rgba(0,0,0,.35) calc(var(--uv) - 250px), transparent var(--uv));
             mask-image:radial-gradient(circle at 1125px 1659px, #000 calc(var(--uv) - 700px), rgba(0,0,0,.35) calc(var(--uv) - 250px), transparent var(--uv))}
-  #glowNotes{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;-webkit-mask-image:var(--occ);mask-image:var(--occ);-webkit-mask-size:100% 100%;mask-size:100% 100%}
+  #glowNotes{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;will-change:transform;-webkit-mask-image:var(--occ);mask-image:var(--occ);-webkit-mask-size:100% 100%;mask-size:100% 100%}
   body.deep #glowStage{--uv:5200px;transition:--uv 9s cubic-bezier(.35,0,.25,1) 3s;animation:breathe-glow 8s ease-in-out 12s infinite alternate}
   @keyframes breathe-glow{from{opacity:.95}to{opacity:.78}}
   body.deep #notesG{opacity:0;transition:opacity 4s 2s}
@@ -180,7 +182,7 @@
   body.pen #view{cursor:crosshair !important}
   @media (max-aspect-ratio:1/1){ #penbar{top:auto;bottom:calc(64px + env(safe-area-inset-bottom))} }
 
-  @media (prefers-reduced-motion:reduce){ #sun,#caustic,#grain{animation:none} }
+  @media (prefers-reduced-motion:reduce){ #sun,#caustic i,#grain{animation:none} }
 </style>
 </head>
 <body>
@@ -193,10 +195,9 @@
     <div id="warm" class="fx"></div>
     <div id="lift" class="fx"></div>
     <div id="sun" class="fx"></div>
-    <div id="night" class="fx hole"></div>
-    <div id="nightdim" class="fx hole"></div>
-    <div id="glow" class="fx"></div>
-    <div id="caustic" class="fx"></div>
+    <div id="night" class="follow"></div>
+    <div id="glow" class="follow"></div>
+    <div id="caustic" class="follow"><i></i><i></i></div>
   </div>
 
   <div id="intro" lang="en">
@@ -331,7 +332,6 @@ function paintLight(){
   Object.assign(pool.style, { left: (cx - 2600) + 'px', top: (cy - 2200) + 'px', width: '4400px', height: '3600px',
     background: 'radial-gradient(ellipse 50% 50% at 42% 42%, rgba(255,255,252,.32) 0%, rgba(255,255,250,.10) 50%, rgba(255,255,250,0) 78%)' });
   sun.appendChild(pool);
-  $('nightdim').style.background = '#5d6878';
 }
 addEventListener('resize', () => { const k = -oy / (SHp * cs); fit(); toy = oy = -k * SHp * cs; clamp(); });
 fit();
@@ -381,7 +381,9 @@ function updateOcclusion(now){
     const [px, py] = o === mirror ? [PIVOT.x - o.x, PIVOT.y - o.y] : o.kind === 'item' ? [o.w / 2, o.h] : o.kind === 'poster' ? [o.w / 2, 0] : [o.w / 2, o.h / 2];
     g.setTransform(OK, 0, 0, OK * (o.sq || 1), 0, 0); g.translate(x + px, y + py); g.rotate(r); g.drawImage(o.img, -px, -py, o.w, o.h);
   }
-  occ.toBlob(b => { if (!b) return; const u = URL.createObjectURL(b); $('glowNotes').style.setProperty('--occ', `url(${u})`); if (occURL) setTimeout(((v) => () => URL.revokeObjectURL(v))(occURL), 500); occURL = u; });
+  occ.toBlob(b => { if (!b) return; const u = URL.createObjectURL(b), im = new Image();
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { $('glowNotes').style.setProperty('--occ', `url(${u})`); if (occURL) setTimeout(((v) => () => URL.revokeObjectURL(v))(occURL), 1500); occURL = u; });
+    im.src = u; });
 }
 function stepZoom(now){
   if (!ztw) return;
@@ -623,6 +625,7 @@ $('bReset').addEventListener('click', () => {
 /* ———————————— frame loop ———————————— */
 const par = { x: 0, y: 0, tx: 0, ty: 0 };
 let notice = 0, arrived = false;
+let lastF = [];
 function frame(now){
   stepZoom(now); updateOcclusion(now);
   if (!pan){ if (Math.abs(vmom) > .05){ toy += vmom; vmom *= .93; clamp(); } }
@@ -668,8 +671,13 @@ function frame(now){
   const a = mirror.ang * Math.PI / 180, dx = G.cx - PIVOT.x, dy = G.cy - PIVOT.y;
   const gx = PIVOT.x + dx * Math.cos(a) - dy * Math.sin(a) - par.x * mirror.depth * 22 + (mirror.x - mirror.bx);
   const gy = PIVOT.y + dx * Math.sin(a) + dy * Math.cos(a) - par.y * mirror.depth * 14 + (mirror.y - mirror.by);
-  scene.style.setProperty('--gx', (gx + P) + 'px'); scene.style.setProperty('--gy', (gy + PT) + 'px');
-  $('glow').style.background = `radial-gradient(ellipse 420px 500px at ${gx + P}px ${gy + PT}px, rgba(60,130,160,.36) 0%, rgba(40,95,125,.12) 45%, rgba(0,0,0,0) 80%)`;
+  const fx = Math.round((gx + P) * 2) / 2, fy = Math.round((gy + PT) * 2) / 2, fa = Math.round((mirror.ang + G.rot) * 20) / 20;
+  if (fx !== lastF[0] || fy !== lastF[1] || fa !== lastF[2]){
+    lastF = [fx, fy, fa];
+    $('night').style.transform = `translate3d(${fx - 4500}px,${fy - 4500}px,0) rotate(${fa}deg)`;
+    $('glow').style.transform = `translate3d(${fx - 500}px,${fy - 600}px,0)`;
+    $('caustic').style.transform = `translate3d(${fx - 750}px,${fy - 850}px,0)`;
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
