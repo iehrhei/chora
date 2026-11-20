@@ -66,7 +66,7 @@
   /* the mirror's light: cool, and only when you look into it */
   .hole{-webkit-mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%);
                 mask-image:radial-gradient(ellipse 182px 232px at var(--gx) var(--gy), transparent 0%, transparent 90%, #000 100%)}
-  #night{mix-blend-mode:color;background:#1d4a6a;opacity:0}
+  #night{mix-blend-mode:color;background:#22407a;opacity:0}
   #nightdim{mix-blend-mode:multiply;opacity:0}
   #glow{opacity:0;mix-blend-mode:screen}
   #caustic{opacity:0;mix-blend-mode:screen;
@@ -157,12 +157,15 @@
   #notes path{fill:none;stroke:#3b3b40;stroke-linecap:round;stroke-linejoin:round}
   #notesG g{opacity:.82;transition:opacity 1.6s}
   /* the same words, in fluorescent pencil: they wake when the room goes dark */
-  #glowStage{position:absolute;width:2856px;height:2142px;pointer-events:none;z-index:25000;opacity:0;transition:opacity 2.5s ease;mix-blend-mode:screen}
+  @property --uv{syntax:'<length>';inherits:false;initial-value:0px}
+  #glowStage{position:absolute;width:2856px;height:2142px;pointer-events:none;z-index:25000;mix-blend-mode:screen;opacity:.95;
+    --uv:0px;transition:--uv 2.2s ease-in;
+    -webkit-mask-image:radial-gradient(circle at 1125px 1659px, #000 calc(var(--uv) - 700px), rgba(0,0,0,.35) calc(var(--uv) - 250px), transparent var(--uv));
+            mask-image:radial-gradient(circle at 1125px 1659px, #000 calc(var(--uv) - 700px), rgba(0,0,0,.35) calc(var(--uv) - 250px), transparent var(--uv))}
   #glowNotes{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
-  #glowG path{fill:none;stroke:#9ff5df;stroke-linecap:round;stroke-linejoin:round}
-  body.deep #glowStage{opacity:1;transition:opacity 5s ease 3.5s;animation:breathe-glow 7s ease-in-out 8.5s infinite alternate}
-  @keyframes breathe-glow{from{opacity:1}to{opacity:.72}}
-  body.deep #notesG{opacity:.25;transition:opacity 4s}
+  body.deep #glowStage{--uv:5200px;transition:--uv 9s cubic-bezier(.35,0,.25,1) 3s;animation:breathe-glow 8s ease-in-out 12s infinite alternate}
+  @keyframes breathe-glow{from{opacity:.95}to{opacity:.78}}
+  body.deep #notesG{opacity:0;transition:opacity 4s 2s}
   #notesG g.new{opacity:0}
   #zoom,#penbar{position:fixed;z-index:6;display:flex;gap:6px;opacity:0;pointer-events:none;transition:opacity 1.2s}
   #zoom{left:clamp(14px,3vw,40px);bottom:calc(clamp(14px,3vh,36px) + env(safe-area-inset-bottom))}
@@ -184,7 +187,7 @@
 <div id="view">
   <div id="scene">
     <div id="wall"></div>
-    <div id="glowStage"><svg id="glowNotes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="glowF" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceGraphic" stdDeviation="14" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g id="glowG" filter="url(#glowF)"></g></svg></div>
+    <div id="glowStage"><svg id="glowNotes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="glowF" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="7" result="patch"/><feColorMatrix in="patch" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 .45" result="pa"/><feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="1" seed="3" result="grain"/><feColorMatrix in="grain" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 .62" result="ga"/><feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="1" seed="11" result="wob"/><feDisplacementMap in="SourceGraphic" in2="wob" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="d"/><feComposite in="d" in2="pa" operator="in" result="s1"/><feComposite in="s1" in2="ga" operator="in" result="ink"/><feGaussianBlur in="ink" stdDeviation="1.6" result="h1"/><feGaussianBlur in="ink" stdDeviation="7" result="h2"/><feColorMatrix in="h2" type="matrix" values="0 0 0 0 .42  0 0 0 0 .6  0 0 0 0 1  0 0 0 1.4 0" result="h2c"/><feMerge><feMergeNode in="h2c"/><feMergeNode in="h1"/><feMergeNode in="ink"/><feMergeNode in="ink"/></feMerge></filter></defs><g id="glowG" filter="url(#glowF)"></g></svg></div>
     <div id="stage"><svg id="notes" xmlns="http://www.w3.org/2000/svg"><defs><filter id="pencil" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="9" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.0" result="m"/><feComposite in="d" in2="m" operator="in"/></filter></defs><g id="notesG" filter="url(#pencil)"></g><g id="inkNow"></g></svg><div id="objs"></div></div>
     <div id="shade" class="fx"></div>
     <div id="warm" class="fx"></div>
@@ -436,7 +439,7 @@ function renderNotes(){
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.classList.add('new');
     for (const st of (n.s || [])) { const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', strokeD(st)); p.setAttribute('stroke-width', n.w || 6); g.appendChild(p); }
     notesG.appendChild(g); drawn.set(n.id, g);
-    const gg = g.cloneNode(true); gg.classList.remove('new'); gg.dataset.id = n.id; $('glowG').appendChild(gg); g._glow = gg; requestAnimationFrame(() => requestAnimationFrame(() => g.classList.remove('new')));
+    const gg = g.cloneNode(true); gg.classList.remove('new'); gg.querySelectorAll('path').forEach(q => q.setAttribute('stroke-width', (parseFloat(q.getAttribute('stroke-width')) * 1.5).toFixed(1))); gg.dataset.id = n.id; $('glowG').appendChild(gg); g._glow = gg; requestAnimationFrame(() => requestAnimationFrame(() => g.classList.remove('new')));
   }
   for (const [id, g] of drawn) if (!keep.has(id)){ g.remove(); if (g._glow) g._glow.remove(); drawn.delete(id); }
 }
