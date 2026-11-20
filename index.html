@@ -214,7 +214,7 @@
       <p>Nothing here can break. Move what you like; leave a word in pencil, and it will stay on your wall alone. To the room where things are allowed to happen, this wall is dedicated.</p>
     </div>
     <div class="sig"><span>a wall, a mirror, and the deep sea</span><span>below &darr;</span></div>
-    <p class="colo">Live sea by courtesy of Schmidt Ocean Institute (R/V Falkor (too), ROV SuBastian), Ocean Exploration Trust (E/V Nautilus), NOAA Ocean Exploration, and the NSF Ocean Observatories Initiative / University of Washington (the high-definition camera at Axial Seamount). The figure in the O is drawn after an Attic red-figure cup of the fourth century BC: a Nereid on a dolphin. The mirror shows you only in your own browser; nothing is recorded or sent, and words left on the wall stay with you. &copy; 2026 Ouvroir de Rhei. All rights reserved.<br>Plato, <em>Timaeus</em> 49a, 52b, tr. Benjamin Jowett (<a href="https://www.gutenberg.org/ebooks/1572" target="_blank" rel="noopener">Project Gutenberg</a>).</p>
+    <p class="colo">Live sea by courtesy of Schmidt Ocean Institute (R/V Falkor (too), ROV SuBastian), Ocean Exploration Trust (E/V Nautilus), NOAA Ocean Exploration, and the NSF Ocean Observatories Initiative / University of Washington (the high-definition camera at Axial Seamount). The figure in the O is drawn after an Attic red-figure cup of the fourth century BC: a Nereid on a dolphin. The mirror shows you only in your own browser; nothing is recorded or sent, and words left on the wall stay with you. Best with headphones. &copy; 2026 Ouvroir de Rhei. All rights reserved.<br>Plato, <em>Timaeus</em> 49a, 52b, tr. Benjamin Jowett (<a href="https://www.gutenberg.org/ebooks/1572" target="_blank" rel="noopener">Project Gutenberg</a>).</p>
   </div>
 </div>
 <canvas id="motes"></canvas>
@@ -230,11 +230,12 @@
   <div id="status">Look into the mirror</div>
   <div id="hint">Pick things up, pinch or scroll with ⌘ to look closer, and leave a few words in pencil — they stay on this wall, in your browser, for you alone. The mirror sees you only here: nothing is recorded or sent.</div>
   <div id="ctrl">
-    <button id="bCam">see yourself</button><span>·</span><button id="bPen">write on the wall</button><span>·</span><button id="bNext">another sea</button><span>·</span><button id="bSound">sound off</button><span>·</span><button id="bReset">restore</button>
+    <button id="bCam">see yourself</button><span>·</span><button id="bPen">write on the wall</button><span>·</span><button id="bNext">another sea</button><span>·</span><button id="bSound">sound on</button><span>·</span><button id="bReset">restore</button>
   </div>
 </div>
 
 <script src="tondo.js"></script>
+<script src="sound.js"></script>
 <script>
 (async function(){
 const $ = id => document.getElementById(id);
@@ -530,7 +531,7 @@ view.addEventListener('pointerdown', e => {
   if (o){
     drag = { o, gx: p.x - o.x, gy: p.y - o.y, sx: e.clientX, sy: e.clientY, moved: 0, glass: o === mirror && inGlass(p) };
     o.z = o.layerZ * 100 + Math.min(99, ++touch); o.el.style.zIndex = 9999;
-    if (o.kind !== 'mirror'){ o.state = 'drag'; o.el.classList.add('lift'); }
+    if (o.kind !== 'mirror'){ o.state = 'drag'; o.el.classList.add('lift'); ChoraSound.pick(o); }
     view.style.cursor = 'grabbing';
   } else {
     pan = { sx: e.clientX, sy: e.clientY, ox: tox, oy: toy, ly: e.clientY, t: performance.now(), v: 0 };
@@ -548,7 +549,8 @@ view.addEventListener('pointermove', e => {
   const p = toScene(e.clientX, e.clientY);
   if (cur){
     const lx = cur[cur.length - 2], ly = cur[cur.length - 1];
-    if (Math.hypot(p.x - lx, p.y - ly) * cs > 1.6 && cur.length < 3000){ cur.push(p.x, p.y); cur.el.setAttribute('d', strokeD(cur)); }
+    const dpx = Math.hypot(p.x - lx, p.y - ly) * cs;
+    if (dpx > 1.6 && cur.length < 3000){ cur.push(p.x, p.y); cur.el.setAttribute('d', strokeD(cur)); const tn = performance.now(); ChoraSound.scratch(dpx / Math.max(4, tn - (cur.t || tn - 16))); cur.t = tn; }
     return;
   }
   if (drag){
@@ -588,9 +590,9 @@ function release(e){
   if (cur){ cur.el.setAttribute('d', strokeD(cur)); delete cur.el; cur = null; clearTimeout(commitT); commitT = setTimeout(commit, 1800); return; }
   if (drag){
     const o = drag.o; o.el.classList.remove('lift');
-    if (o === mirror){ if (drag.moved <= 5 && drag.glass) touchGlass(); o.state = 'swing'; }
-    else if (o.kind === 'item'){ o.state = 'fall'; o.vy = 0; o.target = landing(o); }
-    else { o.state = 'rest'; o.rotT = 0; save(); }
+    if (o === mirror){ if (drag.moved <= 5 && drag.glass) touchGlass(); else if (drag.moved > 5) ChoraSound.creak(Math.abs(o.ang) / 15); o.state = 'swing'; }
+    else if (o.kind === 'item'){ o.state = 'fall'; o.vy = 0; o.landed = false; o.target = landing(o); }
+    else { o.state = 'rest'; o.rotT = 0; save(); ChoraSound.stick(o); }
     o.el.style.zIndex = o.z; drag = null; view.style.cursor = 'default';
   }
   if (pan){ vmom = Math.max(-60, Math.min(60, pan.v)); pan = null; }
@@ -627,6 +629,7 @@ function frame(now){
   ox += (tox - ox) * .12; oy += (toy - oy) * .12;
   scene.style.transform = `translate3d(${ox}px,${oy}px,0) scale(${cs})`;
   intro.style.transform = `translate3d(0,${oy}px,0)`;
+  ChoraSound.state(B.classList.contains('deep') ? 'deep' : B.classList.contains('peek') ? 'peek' : 'day');
   const roomTop = oy + PT * cs;
   const here = roomTop < innerHeight * .5;
   if (here !== arrived){ arrived = here; B.classList.toggle('arrived', here); if (here && !started) setTimeout(() => begin(false), 900); if (here && !camAsked){ camAsked = true; setTimeout(meetMirror, 1100); } }
@@ -638,6 +641,7 @@ function frame(now){
       o.vy += 2.6; o.y += o.vy;
       if (o.target !== null && o.y + o.bottomOff >= o.target){
         o.y = o.target - o.bottomOff;
+        if (!o.landed){ o.landed = true; ChoraSound.land(o, o.vy); }
         if (o.vy > 9){ o.vy = -o.vy * .2; o.sq = .955; } else { o.vy = 0; o.state = 'rest'; save(); }
         o.rotT = 0;
       } else if (o.target === null && o.y > H + 120){
@@ -699,6 +703,7 @@ function reveal(){                       // a stream is playing (still hidden un
 }
 function toggleMirror(){
   open = !open;
+  if (open && $('glowG').children.length) setTimeout(() => open && ChoraSound.shimmer(), 3800);
   B.classList.toggle('deep', open); B.classList.remove('peek');
   if (open){
     if (shown){ try{ player.playVideo(); }catch(e){} caption(); }
@@ -771,9 +776,9 @@ function begin(loud){
   started = true; tried = 0; tune(idx < 0 ? 0 : idx);
 }
 $('bNext').addEventListener('click', () => { if (!open) toggleMirror(); started = true; tried = 0; tune(idx + 1); });
-$('bSound').addEventListener('click', () => {
-  muted = !muted; $('bSound').textContent = muted ? 'sound off' : 'sound on';
-  try{ muted ? player.mute() : player.unMute(); }catch(e){}
+$('bSound').addEventListener('click', async () => {
+  const v = await ChoraSound.set(!ChoraSound.enabled());
+  $('bSound').textContent = v ? 'sound off' : 'sound on';
 });
 
 (function(){
